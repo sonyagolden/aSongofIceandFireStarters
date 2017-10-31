@@ -1,10 +1,20 @@
 <!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2017 by aloeeeeeeeee (http://jsbin.com/butirux/60/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
 <html>
   <head>
     <meta charset="utf-8">
     <title>A Song of Ice and Fire</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
     <div class="container">
@@ -19,26 +29,55 @@
       <div class="row">
         <div class="col">
           <h2> Alive! (for now)</h2>
-          <ul class="list-group">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
+          <ul id="characterSheetAlive" class="list-group">
+
           </ul>
         </div>
 
         <div class="col">
           <h2>Dead! (Got the Greyscale)</h2>
-          <ul class="list-group">
-            <li class="list-group-item">Cras justo odio</li>
-            <li class="list-group-item">Dapibus ac facilisis in</li>
-            <li class="list-group-item">Morbi leo risus</li>
-            <li class="list-group-item">Porta ac consectetur ac</li>
-            <li class="list-group-item">Vestibulum at eros</li>
+          <ul id="characterSheetDied" class="list-group">
+
           </ul>
         </div>
       </div>
     </div>
-  </body>
+  <script id="jsbin-javascript">
+const urlCharactersByIsAlive = "https://www.anapioficeandfire.com/api/characters?isAlive="
+const characterSheetIDBase = "characterSheet"
+var modifierSets = [
+		{
+			"list": "Alive",
+			"url": "true"
+		},
+		{
+			"list": "Died",
+			"url": "false"
+		}
+	]
+	
+//Use our list to start issuing requests.
+modifierSets.forEach((modifierSet) => {
+		axios(urlCharactersByIsAlive + modifierSet["url"]).then(response => {
+			var names = []
+			var list = document.getElementById(characterSheetIDBase + modifierSet["list"])
+			
+			//Append to names list, using aliases if name not available.
+			response.data.forEach((character) => {
+				if (character.name !== "")
+					names.push(character.name)
+				else if (character.aliases[0].substr(0,4).toLowerCase() === "the ")
+					names.push(character.aliases[0].substr(4) + ", The")
+				else
+					names.push(character.aliases[0])
+				})
+			
+			// Sort, then append to HTML document
+			names.sort().forEach((name) => {
+					list.insertAdjacentHTML('beforeend', `<li class="list-group-item">${name}</li>`)
+				})
+		})
+	})
+</script>
+</body>
 </html>
